@@ -1,0 +1,98 @@
+# ThreatInt pipeline configuration.
+#
+# `sources` are threat-intelligence feeds. `reliability_prior` is the
+# analyst-assigned trust prior (0..1) used before dynamic cross-verification
+# adjusts it. `url`/`api_key_env` describe how to fetch; when a source has a
+# bundled fixture under data/, the offline collector is used instead so the
+# pipeline is fully reproducible without network access.
+
+pipeline:
+  # Minimum number of distinct sources that must report an indicator before
+  # it is considered cross-verified.
+  min_sources_for_verification: 2
+  # Malicious probability above which an indicator is labelled malicious.
+  malicious_threshold: 0.5
+  # Indicators below this reliability are dropped from campaign clustering.
+  min_reliability_for_clustering: 0.35
+  # Random seed for reproducible ML / clustering.
+  random_seed: 42
+
+sources:
+  - name: abusech_feodo
+    kind: domain
+    reliability_prior: 0.9
+    url: https://feodotracker.abuse.ch/downloads/ipblocklist.csv
+    fixture: abusech_feodo.csv
+  - name: urlhaus
+    kind: url
+    reliability_prior: 0.85
+    url: https://urlhaus.abuse.ch/downloads/csv_recent/
+    fixture: urlhaus.csv
+  - name: phishtank
+    kind: url
+    reliability_prior: 0.8
+    url: https://data.phishtank.com/data/online-valid.csv
+    fixture: phishtank.csv
+  - name: alienvault_otx
+    kind: mixed
+    reliability_prior: 0.75
+    url: https://otx.alienvault.com/api/v1/pulses/subscribed
+    fixture: alienvault_otx.csv
+  - name: internal_honeypot
+    kind: mixed
+    reliability_prior: 0.7
+    url: ""
+    fixture: internal_honeypot.csv
+
+features:
+  # Feature engineering knobs.
+  suspicious_tlds:
+    - zip
+    - xyz
+    - top
+    - tk
+    - gq
+    - ml
+    - cf
+    - work
+    - click
+    - country
+  suspicious_keywords:
+    - login
+    - verify
+    - secure
+    - account
+    - update
+    - bank
+    - invoice
+    - pay
+    - wallet
+    - crypto
+    - admin
+    - signin
+    - webscr
+    - free
+  high_risk_ports:
+    - 22
+    - 23
+    - 445
+    - 3389
+    - 8080
+    - 8443
+    - 4444
+    - 5900
+
+ml:
+  # Classifier selection: "random_forest" or "gradient_boosting".
+  model: random_forest
+  n_estimators: 300
+  max_depth: 12
+  test_size: 0.25
+  # Where a trained model is persisted.
+  model_path: artifacts/classifier.joblib
+
+clustering:
+  # DBSCAN over a composite (lexical + tag) distance matrix.
+  # eps is the max composite distance for two indicators to be neighbours.
+  eps: 0.22
+  min_samples: 2
