@@ -19,11 +19,15 @@ cluster into campaigns → report. Greenfield Python project (src layout).
   - `clustering/` — composite-distance DBSCAN + campaign labelling.
   - `pipeline.py` — stage orchestration (`run_pipeline`, `PipelineResult`).
   - `reporting.py` — console/JSON/CSV output.
-  - `webapp/` — Flask dashboard (`app.py` + `templates/dashboard.html`),
-    console script `threatint-web`. Read-only view over one pipeline run.
+  - `webapp/` — Flask dashboard (`app.py`), static exporter
+    (`static_export.py`), `templates/dashboard.html`. Console scripts
+    `threatint-web` (live) and `threatint-static` (single-file export).
   - `data/` — bundled fixture CSVs (offline mode).
 - `config/config.yaml` — feeds, thresholds, model, clustering knobs.
 - `scripts/generate_fixtures.py` — deterministic fixture regeneration.
+- `Dockerfile` — serves the live console; bakes `/app/dist/index.html`.
+- `.github/workflows/` — `ci.yml` (lint+tests) and `publish-dashboard.yml`
+  (static dashboard → GitHub Pages on push to `main`).
 - `tests/` — pytest suite.
 
 ## Commands

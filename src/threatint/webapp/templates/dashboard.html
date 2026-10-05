@@ -313,9 +313,11 @@
 </div>
 
 <script>
-  const SUMMARY = {{ summary | tojson }};
-  const RELIABILITY = {{ reliability | tojson }};
-  const CAMPAIGNS = {{ campaigns | tojson }};
+  const API_BASE = {{ api_base | tojson }};
+  const STATIC = {{ static_data | tojson }};
+  const SUMMARY = STATIC ? STATIC.summary : {{ summary | tojson }};
+  const RELIABILITY = STATIC ? STATIC.reliability : {{ reliability | tojson }};
+  const CAMPAIGNS = STATIC ? STATIC.campaigns : {{ campaigns | tojson }};
 
   const esc = (s) => String(s).replace(/[&<>"']/g, c => (
     {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
@@ -364,12 +366,23 @@
   const fQ = document.getElementById("f-q");
 
   async function loadIndicators() {
-    const params = new URLSearchParams({
-      verdict: fVerdict.value, type: fType.value, q: fQ.value,
-      limit: String(limit), offset: String(offset),
-    });
-    const res = await fetch("/api/indicators?" + params.toString());
-    const data = await res.json();
+    let data;
+    if (STATIC) {
+      const q = fQ.value.trim().toLowerCase();
+      const filtered = STATIC.indicators.filter(r =>
+        (fVerdict.value === "all" || r.verdict === fVerdict.value) &&
+        (fType.value === "all" || r.indicator_type === fType.value) &&
+        (!q || r.value.toLowerCase().includes(q))
+      );
+      data = { total: filtered.length, offset, items: filtered.slice(offset, offset + limit) };
+    } else {
+      const params = new URLSearchParams({
+        verdict: fVerdict.value, type: fType.value, q: fQ.value,
+        limit: String(limit), offset: String(offset),
+      });
+      const res = await fetch(API_BASE + "/api/indicators?" + params.toString());
+      data = await res.json();
+    }
     const body = document.getElementById("ind-body");
 
     body.innerHTML = data.items.map((r, i) => {

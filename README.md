@@ -109,6 +109,33 @@ JSON endpoints (`/api/summary`, `/api/indicators`, `/api/campaigns`,
 `/api/sources`, `/healthz`) are available for automation. Indicator values are
 rendered defanged (e.g. `hxxp://evil[.]xyz`) and escaped client-side.
 
+### Deploy it
+
+**GitHub Pages (static, no server).** `.github/workflows/publish-dashboard.yml`
+renders the dashboard to a single self-contained HTML file and publishes it to
+Pages on every push to `main`. Enable it once under
+**Settings → Pages → Build and deployment → Source: GitHub Actions**, and the
+console goes live at `https://<owner>.github.io/<repo>/`. No secrets, no
+network — the pipeline runs offline against the fixtures.
+
+To build the same file locally:
+
+```bash
+.venv/bin/threatint-static --offline --out dist/index.html
+```
+
+**Docker.** The `Dockerfile` installs the package, bakes a static dashboard
+into the image, and serves the live Flask console:
+
+```bash
+docker build -t threatint .
+docker run -p 12000:12000 threatint
+# open http://localhost:12000
+```
+
+The baked static file lives at `/app/dist/index.html` inside the image if you
+only want to copy it out for a static host.
+
 ## CLI reference
 
 | Flag | Purpose |

@@ -64,3 +64,14 @@ def test_healthz(client):
     data = client.get("/healthz").get_json()
     assert data["status"] == "ok"
     assert data["generated_at"]
+
+
+def test_static_export_is_self_contained(config):
+    from threatint.webapp.static_export import render_static
+
+    html = render_static(offline=True)
+    assert "ThreatInt" in html
+    assert "Operations Console" in html
+    # Data is inlined, so the page needs no backend.
+    assert '"indicators"' in html
+    assert "camp-" in html

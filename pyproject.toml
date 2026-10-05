@@ -25,6 +25,7 @@ web = ["flask>=3.0"]
 [project.scripts]
 threatint = "threatint.cli:main"
 threatint-web = "threatint.webapp.app:main"
+threatint-static = "threatint.webapp.static_export:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

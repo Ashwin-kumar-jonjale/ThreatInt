@@ -74,6 +74,8 @@ def create_app(result: PipelineResult, config) -> Flask:
             reliability=reliability,
             campaigns=campaigns,
             indicator_count=len(indicators),
+            api_base="",
+            static_data=None,
         )
 
     @app.route("/api/summary")
