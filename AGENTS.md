@@ -19,6 +19,8 @@ cluster into campaigns → report. Greenfield Python project (src layout).
   - `clustering/` — composite-distance DBSCAN + campaign labelling.
   - `pipeline.py` — stage orchestration (`run_pipeline`, `PipelineResult`).
   - `reporting.py` — console/JSON/CSV output.
+  - `webapp/` — Flask dashboard (`app.py` + `templates/dashboard.html`),
+    console script `threatint-web`. Read-only view over one pipeline run.
   - `data/` — bundled fixture CSVs (offline mode).
 - `config/config.yaml` — feeds, thresholds, model, clustering knobs.
 - `scripts/generate_fixtures.py` — deterministic fixture regeneration.
@@ -31,6 +33,7 @@ python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/python -m pytest -q                 # full suite (offline, deterministic)
 .venv/bin/threatint --offline                 # reproducible end-to-end run
 .venv/bin/threatint                           # live feeds, per-source fixture fallback
+.venv/bin/threatint-web --offline             # web dashboard on :12000
 .venv/bin/python scripts/generate_fixtures.py # regenerate fixtures (fixed seed)
 .venv/bin/python -m pyflakes src/threatint scripts tests
 ```

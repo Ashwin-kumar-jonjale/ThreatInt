@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ThreatInt // Operations Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #080b0f;
+    --panel: #0f151c;
+    --panel-2: #131b24;
+    --line: #1e2a36;
+    --ink: #dbe4ec;
+    --dim: #6f8290;
+    --amber: #ffb454;
+    --teal: #45d4c4;
+    --red: #ff5d5d;
+    --green: #5fd98f;
+    --violet: #9d8cff;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --display: "Chakra Petch", var(--mono);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(1200px 600px at 85% -10%, rgba(69, 212, 196, 0.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(255, 180, 84, 0.06), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  /* faint scanline / grain atmosphere */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.015) 0px,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+    z-index: 50;
+  }
+
+  a { color: var(--teal); text-decoration: none; }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 22px 20px 64px; }
+
+  /* ---------- header ---------- */
+  header.top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand .glyph {
+    width: 12px; height: 12px;
+    background: var(--amber);
+    box-shadow: 0 0 14px rgba(255, 180, 84, 0.8);
+    transform: rotate(45deg);
+  }
+  .brand small {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--dim);
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .meta { text-align: right; color: var(--dim); font-size: 11px; letter-spacing: 0.06em; }
+  .meta .live { color: var(--green); }
+  .meta .live::before {
+    content: "";
+    display: inline-block;
+    width: 7px; height: 7px; margin-right: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  /* ---------- KPI strip ---------- */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 22px 0;
+  }
+  .kpi {
+    background: var(--panel);
+    padding: 16px 18px 14px;
+    position: relative;
+    overflow: hidden;
+    animation: rise 0.5s ease both;
+  }
+  .kpi:nth-child(1){animation-delay:.02s}.kpi:nth-child(2){animation-delay:.06s}
+  .kpi:nth-child(3){animation-delay:.10s}.kpi:nth-child(4){animation-delay:.14s}
+  .kpi:nth-child(5){animation-delay:.18s}
+  .kpi .label {
+    font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 8px;
+  }
+  .kpi .value {
+    font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1;
+    color: var(--ink);
+  }
+  .kpi .value.accent { color: var(--amber); }
+  .kpi .value.danger { color: var(--red); }
+  .kpi .value.teal { color: var(--teal); }
+  .kpi::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+    background: var(--line);
+  }
+  .kpi.hot::before { background: var(--amber); }
+  .kpi.crit::before { background: var(--red); }
+  .kpi.cool::before { background: var(--teal); }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- tabs ---------- */
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+  .tab {
+    font-family: var(--display); font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; font-size: 11px;
+    padding: 10px 16px; cursor: pointer; color: var(--dim);
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: rise 0.35s ease both; }
+
+  /* ---------- controls ---------- */
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+  select, input[type="search"] {
+    background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 2px;
+    font-family: var(--mono); font-size: 12px; padding: 8px 10px;
+    outline: none;
+  }
+  select:focus, input[type="search"]:focus { border-color: var(--teal); }
+  input[type="search"] { min-width: 260px; }
+  .count { color: var(--dim); font-size: 11px; letter-spacing: 0.08em; margin-left: auto; }
+
+  /* ---------- table ---------- */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--dim); font-weight: 600; padding: 8px 10px;
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg);
+  }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid rgba(30,42,54,0.55); vertical-align: middle; }
+  tbody tr { transition: background 0.12s; }
+  tbody tr:hover { background: rgba(69,212,196,0.045); }
+  tbody tr { animation: fade 0.4s ease both; }
+
+  .mono-val { font-family: var(--mono); word-break: break-all; color: var(--ink); }
+  .dim { color: var(--dim); }
+
+  .pill {
+    display: inline-block; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 2px; font-weight: 600; white-space: nowrap;
+  }
+  .pill.bad { color: var(--red); background: rgba(255,93,93,0.12); border: 1px solid rgba(255,93,93,0.3); }
+  .pill.good { color: var(--green); background: rgba(95,217,143,0.10); border: 1px solid rgba(95,217,143,0.28); }
+  .pill.warn { color: var(--amber); background: rgba(255,180,84,0.10); border: 1px solid rgba(255,180,84,0.28); }
+  .pill.type { color: var(--violet); background: rgba(157,140,255,0.10); border: 1px solid rgba(157,140,255,0.26); }
+
+  .bar { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .bar .track { flex: 1; height: 5px; background: #1b2732; border-radius: 3px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 3px; }
+  .bar .num { font-size: 11px; color: var(--dim); width: 34px; text-align: right; }
+
+  /* ---------- campaign cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 3px;
+    padding: 16px; position: relative; overflow: hidden;
+  }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--amber); }
+  .card h3 { margin: 0 0 4px; font-family: var(--display); font-size: 16px; letter-spacing: 0.04em; color: var(--ink); }
+  .card .cid { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; margin-bottom: 12px; }
+  .card .stats { display: flex; gap: 18px; margin-bottom: 12px; }
+  .card .stats div { font-size: 10px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
+  .card .stats b { display: block; font-family: var(--display); font-size: 20px; color: var(--ink); letter-spacing: 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+  .tag { font-size: 9.5px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--dim); }
+  .members { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); padding-top: 10px; }
+  .members li { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 11.5px; }
+  .members li span.v { color: var(--ink); word-break: break-all; }
+  .members li span.p { color: var(--red); white-space: nowrap; }
+
+  /* ---------- sources ---------- */
+  .src { display: grid; grid-template-columns: 180px 1fr 70px; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(30,42,54,0.6); }
+  .src .name { font-family: var(--display); letter-spacing: 0.04em; color: var(--ink); }
+  .src .metrics { display: flex; gap: 22px; font-size: 11px; color: var(--dim); }
+  .src .metrics b { color: var(--teal); font-weight: 600; }
+
+  .foot { margin-top: 34px; color: var(--dim); font-size: 10.5px; letter-spacing: 0.06em; border-top: 1px solid var(--line); padding-top: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (max-width: 860px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .src { grid-template-columns: 1fr; gap: 6px; }
+    .hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand"><span class="glyph"></span>THREATINT<small>Operations Console</small></div>
+    <div class="meta">
+      <div class="live">PIPELINE ONLINE</div>
+      <div id="generated">generated —</div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <nav class="tabs">
+    <button class="tab active" data-panel="indicators">Indicators</button>
+    <button class="tab" data-panel="campaigns">Campaigns</button>
+    <button class="tab" data-panel="sources">Source Reliability</button>
+  </nav>
+
+  <section class="panel active" id="panel-indicators">
+    <div class="controls">
+      <select id="f-verdict">
+        <option value="all">all verdicts</option>
+        <option value="malicious">malicious</option>
+        <option value="benign">benign</option>
+        <option value="unknown">unknown</option>
+      </select>
+      <select id="f-type">
+        <option value="all">all types</option>
+        <option value="ipv4">ipv4</option>
+        <option value="domain">domain</option>
+        <option value="url">url</option>
+        <option value="md5">md5</option>
+        <option value="sha256">sha256</option>
+      </select>
+      <input type="search" id="f-q" placeholder="filter by indicator value…" />
+      <span class="count" id="ind-count">—</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:130px">P(malicious)</th>
+          <th style="width:110px">Verdict</th>
+          <th style="width:80px">Type</th>
+          <th>Indicator</th>
+          <th style="width:80px" class="hide-sm">Sources</th>
+          <th style="width:130px" class="hide-sm">Reliability</th>
+          <th style="width:120px" class="hide-sm">Campaign</th>
+        </tr>
+      </thead>
+      <tbody id="ind-body"></tbody>
+    </table>
+    <div class="controls" style="margin-top:14px">
+      <button class="tab" id="prev" style="border:1px solid var(--line)">◀ prev</button>
+      <button class="tab" id="next" style="border:1px solid var(--line)">next ▶</button>
+      <span class="count" id="page-info"></span>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-campaigns">
+    <div class="grid" id="camp-grid"></div>
+  </section>
+
+  <section class="panel" id="panel-sources">
+    <div id="src-list"></div>
+  </section>
+
+  <div class="foot">
+    <span>ThreatInt v0.1.0 · offline fixture run · deterministic (seed 42)</span>
+    <span id="foot-counts">—</span>
+  </div>
+</div>
+
+<script>
+  const SUMMARY = {{ summary | tojson }};
+  const RELIABILITY = {{ reliability | tojson }};
+  const CAMPAIGNS = {{ campaigns | tojson }};
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => (
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
+  ));
+
+  function barColor(p) {
+    if (p >= 0.66) return "var(--red)";
+    if (p >= 0.34) return "var(--amber)";
+    return "var(--teal)";
+  }
+  function probBar(p) {
+    const w = Math.max(2, Math.round(p * 100));
+    return `<div class="bar"><div class="track"><div class="fill" style="width:${w}%;background:${barColor(p)}"></div></div><span class="num">${p.toFixed(2)}</span></div>`;
+  }
+
+  /* ---- KPIs ---- */
+  const kpis = [
+    { label: "Raw records", value: SUMMARY.raw_records, cls: "" },
+    { label: "Unique indicators", value: SUMMARY.indicators, cls: "cool" },
+    { label: "Malicious", value: SUMMARY.malicious, cls: "crit", danger: true },
+    { label: "Campaigns", value: SUMMARY.campaigns, cls: "hot", accent: true },
+    { label: "Sources", value: Object.keys(SUMMARY.sources || {}).length, cls: "" },
+  ];
+  document.getElementById("kpis").innerHTML = kpis.map(k => `
+    <div class="kpi ${k.cls}">
+      <div class="label">${esc(k.label)}</div>
+      <div class="value ${k.danger ? "danger" : k.accent ? "accent" : ""}">${esc(k.value)}</div>
+    </div>`).join("");
+
+  document.getElementById("generated").textContent = "generated " + (SUMMARY.generated_at || "—").replace("T", " ").replace(/\+.*/, " UTC");
+
+  /* ---- tabs ---- */
+  document.querySelectorAll(".tab[data-panel]").forEach(t => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab[data-panel]").forEach(x => x.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      document.getElementById("panel-" + t.dataset.panel).classList.add("active");
+    });
+  });
+
+  /* ---- indicators ---- */
+  let offset = 0, limit = 50;
+  const fVerdict = document.getElementById("f-verdict");
+  const fType = document.getElementById("f-type");
+  const fQ = document.getElementById("f-q");
+
+  async function loadIndicators() {
+    const params = new URLSearchParams({
+      verdict: fVerdict.value, type: fType.value, q: fQ.value,
+      limit: String(limit), offset: String(offset),
+    });
+    const res = await fetch("/api/indicators?" + params.toString());
+    const data = await res.json();
+    const body = document.getElementById("ind-body");
+
+    body.innerHTML = data.items.map((r, i) => {
+      const cls = r.verdict === "malicious" ? "bad" : r.verdict === "benign" ? "good" : "warn";
+      return `<tr style="animation-delay:${Math.min(i * 0.012, 0.4)}s">
+        <td>${probBar(r.malicious_probability)}</td>
+        <td><span class="pill ${cls}">${esc(r.verdict)}</span></td>
+        <td><span class="pill type">${esc(r.indicator_type)}</span></td>
+        <td class="mono-val" title="${esc(r.value)}">${esc(r.defanged)}</td>
+        <td class="hide-sm dim">${r.source_count}</td>
+        <td class="hide-sm">${probBar(r.reliability_score)}</td>
+        <td class="hide-sm dim">${r.campaign_id ? esc(r.campaign_id) : "—"}</td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="7" class="dim" style="padding:24px">no indicators match the filter</td></tr>`;
+
+    const from = data.total === 0 ? 0 : data.offset + 1;
+    const to = Math.min(data.offset + data.items.length, data.total);
+    document.getElementById("ind-count").textContent = `${data.total} indicators`;
+    document.getElementById("page-info").textContent = `showing ${from}–${to} of ${data.total}`;
+    document.getElementById("prev").disabled = offset === 0;
+    document.getElementById("next").disabled = to >= data.total;
+  }
+  fVerdict.addEventListener("change", () => { offset = 0; loadIndicators(); });
+  fType.addEventListener("change", () => { offset = 0; loadIndicators(); });
+  let qTimer;
+  fQ.addEventListener("input", () => { clearTimeout(qTimer); qTimer = setTimeout(() => { offset = 0; loadIndicators(); }, 200); });
+  document.getElementById("prev").addEventListener("click", () => { offset = Math.max(0, offset - limit); loadIndicators(); });
+  document.getElementById("next").addEventListener("click", () => { offset += limit; loadIndicators(); });
+
+  /* ---- campaigns ---- */
+  document.getElementById("camp-grid").innerHTML = CAMPAIGNS.map(c => `
+    <div class="card">
+      <h3>${esc(c.label)}</h3>
+      <div class="cid">${esc(c.campaign_id)}</div>
+      <div class="stats">
+        <div>members<b>${c.size}</b></div>
+        <div>mean P(mal)<b style="color:var(--red)">${c.mean_malicious_probability.toFixed(2)}</b></div>
+        <div>reliability<b style="color:var(--teal)">${c.mean_reliability.toFixed(2)}</b></div>
+      </div>
+      <div class="tags">${(c.shared_tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("") || '<span class="tag">no shared tags</span>'}</div>
+      <ul class="members">
+        ${c.members.slice(0, 6).map(m => `<li><span class="v">${esc(m.defanged)}</span><span class="p">${m.malicious_probability.toFixed(2)}</span></li>`).join("")}
+        ${c.members.length > 6 ? `<li><span class="v dim">+${c.members.length - 6} more…</span></li>` : ""}
+      </ul>
+    </div>`).join("") || `<div class="dim">no campaigns found</div>`;
+
+  /* ---- sources ---- */
+  document.getElementById("src-list").innerHTML = RELIABILITY.map(r => `
+    <div class="src">
+      <div class="name">${esc(r.source)}</div>
+      <div class="metrics">
+        <span>precision <b>${r.precision.toFixed(2)}</b></span>
+        <span>recall <b>${r.recall.toFixed(2)}</b></span>
+        <span>agreement <b>${r.agreement.toFixed(2)}</b></span>
+        <span>volume <b>${r.volume}</b></span>
+      </div>
+      ${probBar(r.score)}
+    </div>`).join("");
+
+  document.getElementById("foot-counts").textContent =
+    `${SUMMARY.indicators} indicators · ${SUMMARY.campaigns} campaigns · ${SUMMARY.malicious} flagged`;
+
+  loadIndicators();
+</script>
+</body>
+</html>

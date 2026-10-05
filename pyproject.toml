@@ -20,15 +20,18 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
+web = ["flask>=3.0"]
 
 [project.scripts]
 threatint = "threatint.cli:main"
+threatint-web = "threatint.webapp.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
 threatint = ["data/**/*.csv", "data/**/*.json"]
+"threatint.webapp" = ["templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

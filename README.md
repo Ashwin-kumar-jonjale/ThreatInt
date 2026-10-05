@@ -86,6 +86,29 @@ Reuse a previously trained model (skip retraining):
 .venv/bin/threatint --use-saved-model --model-path artifacts/classifier.joblib
 ```
 
+## Web dashboard
+
+A read-only operations console over a pipeline run — useful for eyeballing
+results without touching the CLI.
+
+```bash
+.venv/bin/pip install -e ".[web]"
+.venv/bin/threatint-web --offline --port 12000
+# or: scripts/run_webapp.sh 12000 [--live]
+```
+
+It runs the pipeline once at startup (offline by default, so it is
+deterministic and needs no network) and serves:
+
+- an **Indicators** table with malicious probability, verdict, type, source
+  count, reliability and campaign — filterable by verdict/type and free text,
+- **Campaigns** as cards showing members, shared tags and aggregate scores,
+- **Source Reliability** with per-feed precision/recall/agreement/volume.
+
+JSON endpoints (`/api/summary`, `/api/indicators`, `/api/campaigns`,
+`/api/sources`, `/healthz`) are available for automation. Indicator values are
+rendered defanged (e.g. `hxxp://evil[.]xyz`) and escaped client-side.
+
 ## CLI reference
 
 | Flag | Purpose |
