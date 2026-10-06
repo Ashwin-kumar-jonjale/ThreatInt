@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from threatint.collectors import build_collectors  # noqa: E402
 from threatint.config import load_config  # noqa: E402
-from threatint.features import FEATURE_NAMES, FeatureExtractor  # noqa: E402
+from threatint.features import FeatureExtractor  # noqa: E402
 from threatint.ml.classifier import _make_estimator  # noqa: E402
 from threatint.ml.synthetic import generate_corpus  # noqa: E402
 from threatint.models import Indicator  # noqa: E402
@@ -340,7 +340,7 @@ def fig_eval():
     cm, fpr, tpr = _replicate_eval()
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.4))
 
-    im = axes[0].imshow(cm, cmap="Blues", vmin=0)
+    axes[0].imshow(cm, cmap="Blues", vmin=0)
     axes[0].set_xticks([0, 1]); axes[0].set_yticks([0, 1])
     axes[0].set_xticklabels(["pred benign", "pred malicious"], fontsize=9.5)
     axes[0].set_yticklabels(["true benign", "true malicious"], fontsize=9.5)

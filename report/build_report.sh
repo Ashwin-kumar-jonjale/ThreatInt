@@ -29,13 +29,17 @@ PY
 
 echo "==> generating figures"
 "$PY" report/make_figures.py
+"$PY" report/make_build_figures.py
 
 echo "==> compiling LaTeX"
 cd report
-pdflatex -interaction=nonstopmode -halt-on-error threatint_report.tex > /tmp/tex1.log 2>&1 || {
-    echo "first pass failed; tail:"; tail -30 /tmp/tex1.log; exit 1; }
-pdflatex -interaction=nonstopmode -halt-on-error threatint_report.tex > /tmp/tex2.log 2>&1 || {
-    echo "second pass failed; tail:"; tail -30 /tmp/tex2.log; exit 1; }
+for doc in threatint_report threatint_build_report; do
+    echo "    - $doc"
+    pdflatex -interaction=nonstopmode -halt-on-error "$doc.tex" > /tmp/tex1.log 2>&1 || {
+        echo "first pass of $doc failed; tail:"; tail -30 /tmp/tex1.log; exit 1; }
+    pdflatex -interaction=nonstopmode -halt-on-error "$doc.tex" > /tmp/tex2.log 2>&1 || {
+        echo "second pass of $doc failed; tail:"; tail -30 /tmp/tex2.log; exit 1; }
+done
 
-echo "==> done: report/threatint_report.pdf"
-ls -lh threatint_report.pdf
+echo "==> done:"
+ls -lh threatint_report.pdf threatint_build_report.pdf

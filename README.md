@@ -146,11 +146,18 @@ experimental results, security, limitations and future work — lives in
 - Source: `report/threatint_report.tex`
 - Built PDF: `report/threatint_report.pdf` (20 pages, 9 figures)
 
+There is also an **engineering build report** describing *how* the project was
+built: the four phases, the workflow, the obstacles hit and how they were
+resolved, and a retrospective.
+
+- Source: `report/threatint_build_report.tex`
+- Built PDF: `report/threatint_build_report.pdf` (13 pages, 8 figures)
+
 Every quantitative figure and chart is generated from a real deterministic
-offline run, not fabricated. Rebuild it with:
+offline run, not fabricated. Rebuild both with:
 
 ```bash
-bash report/build_report.sh   # captures data, regenerates figures, compiles PDF
+bash report/build_report.sh   # captures data, regenerates figures, compiles PDFs
 ```
 
 This needs `pdflatex` (TeX Live) and `matplotlib`; the script runs the pipeline
