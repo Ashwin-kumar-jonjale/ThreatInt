@@ -1,0 +1,55 @@
+========================================================================
+ThreatInt pipeline report
+========================================================================
+generated at        : 2026-10-06T09:43:11.723172+00:00
+raw records         : 106
+unique indicators   : 81
+malicious           : 57
+campaigns           : 8
+by type             : {'domain': 4, 'ipv4': 39, 'url': 30, 'sha256': 8}
+by verdict          : {'malicious': 57, 'benign': 24}
+
+classifier
+  model             : random_forest (synthetic)
+  accuracy/f1/auc   : 0.860 / 0.850 / 0.947
+  top features      : has_suspicious_tld=0.29, entropy=0.22, digit_ratio=0.13, suspicious_keyword_count=0.08, alpha_ratio=0.07
+
+source reliability
+  urlhaus              score=0.704 precision=0.36 recall=0.62 agreement=0.12 volume=22
+  abusech_feodo        score=0.692 precision=0.22 recall=0.38 agreement=0.05 volume=23
+  phishtank            score=0.671 precision=0.33 recall=0.46 agreement=0.11 volume=18
+  internal_honeypot    score=0.656 precision=0.57 recall=1.00 agreement=0.17 volume=23
+  alienvault_otx       score=0.621 precision=0.30 recall=0.46 agreement=0.10 volume=20
+
+campaigns (top 8)
+  camp-807bd8b856  size=14  p_mal=0.99  campaign: malware
+  camp-1685e9e43e  size=12  p_mal=0.99  campaign: credential
+  camp-5a786a8527  size=10  p_mal=0.68  campaign: botnet
+  camp-8c3164533c  size=8   p_mal=0.98  campaign: exploit
+  camp-84f67a7ae8  size=5   p_mal=0.66  campaign: bruteforce
+  camp-3d0ba5cd49  size=3   p_mal=0.74  campaign: botnet
+  camp-904da0dd19  size=3   p_mal=0.63  campaign: apt
+  camp-3130c44ab8  size=2   p_mal=0.61  campaign: scanner
+
+top indicators (by malicious probability, top 20)
+  1.00  malicious domain  micros0ft-verify.top                             rel=0.92 src=4
+  1.00  malicious url     http://netflix-update24.tk/webscr                rel=0.84 src=1
+  1.00  malicious url     http://chase-update52.tk/signin                  rel=0.84 src=1
+  1.00  malicious url     http://dhl-secure51.cf/webscr                    rel=0.84 src=1
+  1.00  malicious url     http://hsbc-update56.tk/signin                   rel=0.84 src=1
+  1.00  malicious url     http://e617yzfmlxn7dpgs9usu.xyz/cq0uvf8r.bin     rel=0.82 src=1
+  0.99  malicious url     http://amazon-verify30.ml/verify                 rel=0.84 src=1
+  0.99  malicious url     http://apple-verify25.cf/webscr                  rel=0.84 src=1
+  0.99  malicious url     http://chase-login79.cf/verify                   rel=0.84 src=1
+  0.99  malicious url     http://chase-update29.ml/signin                  rel=0.84 src=1
+  0.99  malicious url     http://chase-verify62.ml/verify                  rel=0.84 src=1
+  0.99  malicious url     http://netflix-login81.tk/webscr                 rel=0.84 src=1
+  0.99  malicious url     http://paypal-login30.ml/webscr                  rel=0.84 src=1
+  0.99  malicious url     http://0v934meeeixry.zip/apd89hzr.bin            rel=0.82 src=1
+  0.99  malicious url     http://7k0ofo6l1b178tgusd5x.xyz/bxvng8bd.bin     rel=0.82 src=1
+  0.99  malicious url     http://7zczac13fu7296nf3xxcj.top/go0kimqy.bin    rel=0.82 src=1
+  0.99  malicious url     http://sja0t5xcuadfdx10z4.top/a5lme1mf.bin       rel=0.82 src=1
+  0.99  malicious url     http://ym2hptd5nw8vrgj6c9.click/sbjj3f53.bin     rel=0.82 src=1
+  0.99  malicious url     http://blmkpoc23ztub1wgkfatm.top/mgfk9zpd.bin    rel=0.82 src=1
+  0.99  malicious url     http://g11zo2eoa7lzrvq2.top/ea8qu2bs.bin         rel=0.82 src=1
+========================================================================

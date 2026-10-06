@@ -23,6 +23,12 @@ dist/
 *.joblib
 *.report.json
 
+# LaTeX build intermediates (keep the .tex source and built .pdf)
+*.aux
+*.log
+*.out
+*.toc
+
 # Editor / OS
 .idea/
 .vscode/

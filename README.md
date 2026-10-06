@@ -136,6 +136,27 @@ docker run -p 12000:12000 threatint
 The baked static file lives at `/app/dist/index.html` inside the image if you
 only want to copy it out for a static host.
 
+## Technical research report
+
+A deep, research-style write-up of the whole system — architecture, data model,
+a module-by-module function reference, the reliability/consensus mathematics,
+experimental results, security, limitations and future work — lives in
+`report/`.
+
+- Source: `report/threatint_report.tex`
+- Built PDF: `report/threatint_report.pdf` (20 pages, 9 figures)
+
+Every quantitative figure and chart is generated from a real deterministic
+offline run, not fabricated. Rebuild it with:
+
+```bash
+bash report/build_report.sh   # captures data, regenerates figures, compiles PDF
+```
+
+This needs `pdflatex` (TeX Live) and `matplotlib`; the script runs the pipeline
+and `report/make_figures.py` first, so the numbers in the PDF always match the
+current code.
+
 ## CLI reference
 
 | Flag | Purpose |
